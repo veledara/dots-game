@@ -1,6 +1,7 @@
 from math import sqrt
+import re
 import pygame
-from constants import BLACK, HEIGHT, WHITE, WIDTH
+from constants import LIGHTGRAY, HEIGHT, WHITE, WIDTH, DotState
 from dot import Dot
 
 
@@ -8,35 +9,53 @@ class GameField:
     def __init__(self, dots_amount=16) -> None:
         self.dots_amount = dots_amount
         self.lines = int(sqrt(dots_amount))
-        self.field = [[None for dot in range(self.lines)] for line in range(self.lines)]
+        self.distance_between_dots = WIDTH / (self.lines + 1)
+        self.field = self.fill_field()
+        self.fill_field()
 
-    def draw_dots(self, win):
+    def fill_field(self):
+        field = [[None for dot in range(self.lines)] for line in range(self.lines)]
+        for i in range(self.lines):
+            for j in range(self.lines):
+                dot_coords = (
+                    (i + 1) * self.distance_between_dots,
+                    (j + 1) * self.distance_between_dots,
+                )
+                field[i][j] = Dot(pos=(i, j), coords=dot_coords)
+        return field
+
+    def draw_field(self, win):
         win.fill(WHITE)
-        distance = WIDTH / (self.lines + 1)
         for i in range(1, self.lines + 1):
             pygame.draw.line(
                 surface=win,
-                color=BLACK,
-                start_pos=((distance * (i)), 0),
-                end_pos=((distance * (i)), HEIGHT),
+                color=LIGHTGRAY,
+                start_pos=((self.distance_between_dots * (i)), 0),
+                end_pos=((self.distance_between_dots * (i)), HEIGHT),
                 width=3,
             )
             pygame.draw.line(
                 surface=win,
-                color=BLACK,
-                start_pos=(0, (distance * (i))),
-                end_pos=(WIDTH, (distance * (i))),
+                color=LIGHTGRAY,
+                start_pos=(0, (self.distance_between_dots * (i))),
+                end_pos=(WIDTH, (self.distance_between_dots * (i))),
+                width=3,
             )
+        for i in range(1, self.lines + 1):
             for j in range(1, self.lines + 1):
-                dot_coords = ((i) * distance, (j) * distance)
-                self.field[i - 1][j - 1] = Dot(dot_coords)
-                pygame.draw.circle(
-                    surface=win,
-                    color=BLACK,
-                    center=dot_coords,
-                    radius=5,
-                )
-        # print(self.board)
+                dot = self.field[i - 1][j - 1]
+                dot.draw(win)
+
+    def check_for_dot_hit(self, pos, turn):
+        for i in range(self.lines):
+            for j in range(self.lines):
+                dot = self.field[i][j]
+                if dot.circle.collidepoint(pos):
+                    if dot.state in [DotState.RED, DotState.BLUE]:
+                        return turn
+                    dot.state = DotState.BLUE if turn % 2 == 0 else DotState.RED
+                    return turn + 1
+        return turn
 
 
 if __name__ == "__main__":
