@@ -29,7 +29,6 @@ def main():
 
         game_field.draw_field(WIN)
         pygame.display.update()
-
     pygame.quit()
 
 
