@@ -7,7 +7,7 @@ class Dot:
         self.pos = pos
         self.coords = coords
         self.state = DotState.WHITE
-        self.color = DotState.WHITE.value
+        self.color = self.state.value
         self.captured = False
         self.circle = None
 
@@ -24,7 +24,6 @@ class Dot:
         current_color = (
             DotState.WHITE.value if self.state == DotState.WHITE else self.gradient()
         )
-        print(current_color)
         self.circle = pygame.draw.circle(
             surface=win,
             color=current_color,

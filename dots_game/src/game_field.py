@@ -1,5 +1,5 @@
 from math import sqrt
-import re
+from xmlrpc.client import Boolean
 import pygame
 from constants import LIGHTGRAY, HEIGHT, WHITE, WIDTH, DotState
 from dot import Dot
@@ -11,7 +11,6 @@ class GameField:
         self.lines = int(sqrt(dots_amount))
         self.distance_between_dots = WIDTH / (self.lines + 1)
         self.field = self.fill_field()
-        self.fill_field()
 
     def fill_field(self):
         field = [[None for dot in range(self.lines)] for line in range(self.lines)]
@@ -46,16 +45,16 @@ class GameField:
                 dot = self.field[i - 1][j - 1]
                 dot.draw(win)
 
-    def check_for_dot_hit(self, pos, turn):
+    def check_for_dot_hit(self, pos, turn) -> Boolean:
         for i in range(self.lines):
             for j in range(self.lines):
                 dot = self.field[i][j]
                 if dot.circle.collidepoint(pos):
                     if dot.state in [DotState.RED, DotState.BLUE]:
-                        return turn
-                    dot.state = DotState.BLUE if turn % 2 == 0 else DotState.RED
-                    return turn + 1
-        return turn
+                        return False
+                    dot.state = turn
+                    return True
+        return False
 
 
 if __name__ == "__main__":
