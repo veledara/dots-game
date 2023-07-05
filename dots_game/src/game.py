@@ -1,4 +1,4 @@
-from game_field import GameField
+from game_field import GameField, get_opposite_color
 from constants import DotState
 import pygame
 
@@ -16,7 +16,7 @@ class Game:
     def move(self):
         pos = pygame.mouse.get_pos()
         if self.game_field.check_for_dot_hit(pos=pos, turn=self.turn):
-            self.change_turn()
+            self.turn = get_opposite_color(self.turn)
             self.game_field.red_captured_territory, self.game_field.blue_captured_territory = self.game_field.capturing_check()
 
     def change_turn(self):

@@ -10,8 +10,6 @@ class Dot:
         self.color = self.state.value
         self.captured = False
         self.circle = None
-        self.next = None
-        self.last = None
 
     def gradient(self):
         r, g, b = self.color
