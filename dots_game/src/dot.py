@@ -1,5 +1,5 @@
 import pygame
-from constants import DotState, SMOOTHNESS_OF_COLORING
+from constants import DotState, SMOOTHNESS_OF_COLORING, LIGHTGRAY
 
 
 class Dot:
@@ -24,6 +24,8 @@ class Dot:
         current_color = (
             DotState.WHITE.value if self.state == DotState.WHITE else self.gradient()
         )
+        if self.captured == True:
+            current_color = LIGHTGRAY
         self.circle = pygame.draw.circle(
             surface=win,
             color=current_color,
