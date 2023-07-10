@@ -11,8 +11,8 @@ class GameField:
         self.lines = int(sqrt(dots_amount))
         self.distance_between_dots = WIDTH / (self.lines + 1)
         self.field = self.fill_field()
-        self.red_captured_territory = []
-        self.blue_captured_territory = []
+        self.red_captured_territory = {}
+        self.blue_captured_territory = {}
 
     def fill_field(self):
         field = [[None for dot in range(self.lines)] for line in range(self.lines)]
@@ -55,11 +55,12 @@ class GameField:
         )
 
     def draw_borders(self, win, color, captured_territory):
-        for borders in captured_territory:
+        for borders in captured_territory.values():
+            border_color = self.field[borders[0][0]][borders[0][1]].color
             for i in range(len(borders)):
                 pygame.draw.line(
                     surface=win,
-                    color=color.value,
+                    color=border_color,
                     start_pos=(self.field[borders[i][0]][borders[i][1]].coords),
                     end_pos=(
                         self.field[borders[(i + 1) % len(borders)][0]][
@@ -83,8 +84,8 @@ class GameField:
     def capturing_check(self):
         visit = set()
         dfs_for_white_visit = set()
-        red_captured_territory = []
-        blue_captured_territory = []
+        red_captured_territory = {}
+        blue_captured_territory = {}
         borders = []
         captured_dots = []
 
@@ -94,9 +95,12 @@ class GameField:
             if self.field[r][c].state == color:
                 borders.append(self.field[r][c].pos)
             if (
-                (self.field[r][c].state == color or (self.field[r][c].state == get_opposite_color(color) and (r, c) in visit))
-                or (r, c) in dfs_for_white_visit
-            ):
+                self.field[r][c].state == color
+                or (
+                    self.field[r][c].state == get_opposite_color(color)
+                    and (r, c) in visit
+                )
+            ) or (r, c) in dfs_for_white_visit:
                 return 1
             dfs_for_white_visit.add((r, c))
             return min(
@@ -115,8 +119,10 @@ class GameField:
             if self.field[r][c].state == get_opposite_color(color):
                 captured_dots.append(self.field[r][c])
 
-            if self.field[r][c].state == DotState.WHITE and dfs_for_white(r, c, color) == 0:
-                print("haha")
+            if (
+                self.field[r][c].state == DotState.WHITE
+                and dfs_for_white(r, c, color) == 0
+            ):
                 return 0
             dfs_for_white_visit.clear()
             if self.field[r][c].state == color and self.field[r][c].captured == True:
@@ -142,7 +148,9 @@ class GameField:
                         sorted_borders = closest_neighbor_sort(borders)
                         for dot in captured_dots:
                             dot.captured = True
-                        red_captured_territory.append(list(sorted_borders))
+                            dot.state = DotState.EXBLUE
+                        red_captured_territory[tuple(captured_dots)] = list(sorted_borders)
+                        # red_captured_territory.append(list(sorted_borders))
                     captured_dots.clear()
                     borders.clear()
 
@@ -155,7 +163,9 @@ class GameField:
                         sorted_borders = closest_neighbor_sort(borders)
                         for dot in captured_dots:
                             dot.captured = True
-                        blue_captured_territory.append(list(sorted_borders))
+                            dot.state = DotState.EXRED
+                        blue_captured_territory[tuple(captured_dots)] = list(sorted_borders)
+                        # blue_captured_territory.append(list(sorted_borders))
                     captured_dots.clear()
                     borders.clear()
         return red_captured_territory, blue_captured_territory

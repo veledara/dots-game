@@ -1,5 +1,5 @@
 import pygame
-from constants import DotState, SMOOTHNESS_OF_COLORING, LIGHTGRAY
+from constants import WHITE, DotState, SMOOTHNESS_OF_COLORING, LIGHTGRAY
 
 
 class Dot:
@@ -11,21 +11,35 @@ class Dot:
         self.captured = False
         self.circle = None
 
-    def gradient(self):
+    # def gradient(self):
+    #     r, g, b = self.color
+    #     sm = SMOOTHNESS_OF_COLORING
+    #     if self.state == DotState.BLUE:
+    #         self.color = (max(r - sm, 0), max(g - sm, 0), min(b + sm, 255))
+    #     else:
+    #         self.color = (min(r + sm, 255), max(g - sm, 0), max(b - sm, 0))
+    #     return self.color
+
+    def gradient(self, end_color):
         r, g, b = self.color
+        r_end, g_end, b_end = end_color
         sm = SMOOTHNESS_OF_COLORING
-        if self.state == DotState.BLUE:
-            self.color = (max(r - sm, 0), max(g - sm, 0), min(b + sm, 255))
-        else:
-            self.color = (min(r + sm, 255), max(g - sm, 0), max(b - sm, 0))
+        r = min(r + sm, r_end) if r_end > r else max(r - sm, r_end)
+        g = min(g + sm, g_end) if g_end > g else max(g - sm, g_end)
+        b = min(b + sm, b_end) if b_end > b else max(b - sm, b_end)
+        self.color = (r, g, b)
         return self.color
 
     def draw(self, win):
-        current_color = (
-            DotState.WHITE.value if self.state == DotState.WHITE else self.gradient()
-        )
-        if self.captured == True:
-            current_color = LIGHTGRAY
+        # current_color = (
+        #     DotState.WHITE.value
+        #     if self.state == DotState.WHITE
+        #     else self.gradient(self.state.value)
+        # )
+        if self.state == DotState.WHITE:
+            current_color = DotState.WHITE.value
+        else:
+            current_color = self.gradient(self.state.value)
         self.circle = pygame.draw.circle(
             surface=win,
             color=current_color,
