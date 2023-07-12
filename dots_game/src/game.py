@@ -1,11 +1,11 @@
-from game_field import GameField, get_opposite_color
-from constants import DotState
+from game_field import GameField
+from constants import DotState, WIDTH, HEIGHT, FPS
 import pygame
 
 
 class Game:
-    def __init__(self, win, dots_amount) -> None:
-        self.win = win
+    def __init__(self, dots_amount) -> None:
+        self.win = pygame.display.set_mode((WIDTH, HEIGHT))
         self.game_field = GameField(dots_amount)
         self.turn = DotState.BLUE
 
@@ -30,3 +30,16 @@ class Game:
             self.turn = DotState.RED
         else:
             self.turn = DotState.BLUE
+
+    def main(self):
+        run = True
+        clock = pygame.time.Clock()
+        while run:
+            clock.tick(FPS)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.move()
+            self.update()
+        pygame.quit()

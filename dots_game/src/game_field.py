@@ -1,6 +1,4 @@
 from math import sqrt
-from telnetlib import DO
-from xmlrpc.client import Boolean
 import pygame
 from constants import LIGHTGRAY, HEIGHT, WHITE, WIDTH, DotState
 from dot import Dot
@@ -49,13 +47,13 @@ class GameField:
                 dot.draw(win)
 
         self.draw_borders(
-            win, DotState.RED, captured_territory=self.red_captured_territory
+            win, captured_territory=self.red_captured_territory
         )
         self.draw_borders(
-            win, DotState.BLUE, captured_territory=self.blue_captured_territory
+            win, captured_territory=self.blue_captured_territory
         )
 
-    def draw_borders(self, win, color, captured_territory):
+    def draw_borders(self, win, captured_territory):
         for borders in captured_territory.values():
             border_color = self.field[borders[0][0]][borders[0][1]].color
             for i in range(len(borders)):
@@ -71,7 +69,7 @@ class GameField:
                     width=4,
                 )
 
-    def check_for_dot_hit(self, pos, turn) -> Boolean:
+    def check_for_dot_hit(self, pos, turn) -> bool:
         for i in range(self.lines):
             for j in range(self.lines):
                 dot = self.field[i][j]

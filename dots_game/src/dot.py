@@ -1,5 +1,5 @@
 import pygame
-from constants import WHITE, DotState, SMOOTHNESS_OF_COLORING, LIGHTGRAY
+from constants import DotState, SMOOTHNESS_OF_COLORING
 
 
 class Dot:

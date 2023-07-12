@@ -10,8 +10,9 @@ class DotState(Enum):
     EXRED = (128, 0, 0)
 
 
+FPS = 60
 WIDTH, HEIGHT = 600, 600
-DOTS = 16
+DOTS = 144
 SMOOTHNESS_OF_COLORING = 8
 
 LIGHTGRAY = (211, 211, 211)
