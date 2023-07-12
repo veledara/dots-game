@@ -16,16 +16,17 @@ class Game:
     def move(self):
         pos = pygame.mouse.get_pos()
         if self.game_field.check_for_dot_hit(pos=pos, turn=self.turn):
-            self.turn = get_opposite_color(self.turn)
+            self.change_turn()
             r, b = self.game_field.capturing_check()
             self.game_field.red_captured_territory.update(r)
             self.game_field.blue_captured_territory.update(b)
-
+            print("\n")
+            print(f"Red captured territory: {self.game_field.red_captured_territory}")
+            print("\n")
+            print(f"Blue captured territory: {self.game_field.blue_captured_territory}")
 
     def change_turn(self):
         if self.turn == DotState.BLUE:
             self.turn = DotState.RED
         else:
             self.turn = DotState.BLUE
-
-

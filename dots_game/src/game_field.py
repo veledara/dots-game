@@ -1,4 +1,5 @@
 from math import sqrt
+from telnetlib import DO
 from xmlrpc.client import Boolean
 import pygame
 from constants import LIGHTGRAY, HEIGHT, WHITE, WIDTH, DotState
@@ -75,8 +76,15 @@ class GameField:
             for j in range(self.lines):
                 dot = self.field[i][j]
                 if dot.circle.collidepoint(pos):
-                    if dot.state in [DotState.RED, DotState.BLUE]:
+                    if dot.state != DotState.WHITE:
                         return False
+                    captured_territory = self.get_enemy_territory_by_color(turn)
+                    for captured_dots in captured_territory.keys():
+                        for captured_dot in captured_dots:
+                            if dot.pos == captured_dot.pos:
+                                dot.state = get_ex_color(turn)
+                                captured_dot.state = dot.state
+                                return True
                     dot.state = turn
                     return True
         return False
@@ -86,14 +94,21 @@ class GameField:
         dfs_for_white_visit = set()
         red_captured_territory = {}
         blue_captured_territory = {}
+        white_captured = []
         borders = []
         captured_dots = []
 
         def dfs_for_white(r, c, color):
             if r < 0 or c < 0 or r == self.lines or c == self.lines:
                 return 0
-            if self.field[r][c].state == color:
+            if self.field[r][c].state == color and self.field[r][c].pos not in borders:
                 borders.append(self.field[r][c].pos)
+            if (
+                self.field[r][c].state == DotState.WHITE
+                and self.field[r][c] not in white_captured
+                and self.field[r][c] not in captured_dots
+            ):
+                white_captured.append(self.field[r][c])
             if (
                 self.field[r][c].state == color
                 or (
@@ -114,19 +129,22 @@ class GameField:
             if r < 0 or c < 0 or r == self.lines or c == self.lines:
                 return 0
 
-            if self.field[r][c].state == color:
+            if self.field[r][c].state == color and self.field[r][c].pos not in borders:
                 borders.append(self.field[r][c].pos)
-            if self.field[r][c].state == get_opposite_color(color):
-                captured_dots.append(self.field[r][c])
-
             if (
-                self.field[r][c].state == DotState.WHITE
-                and dfs_for_white(r, c, color) == 0
-            ):
-                return 0
+                self.field[r][c].state == get_opposite_color(color)
+                or self.field[r][c].state == DotState.WHITE
+            ) and self.field[r][c] not in captured_dots:
+                captured_dots.append(self.field[r][c])
+            if self.field[r][c].state == DotState.WHITE:
+                if dfs_for_white(r, c, color) == 0:
+                    white_captured.clear()
+                    return 0
+                else:
+                    captured_dots.extend(white_captured)
+                    white_captured.clear()
+
             dfs_for_white_visit.clear()
-            if self.field[r][c].state == color and self.field[r][c].captured == True:
-                return 0
             if self.field[r][c].state == color or (r, c) in visit:
                 return 1
             visit.add((r, c))
@@ -139,36 +157,42 @@ class GameField:
 
         for r in range(self.lines):
             for c in range(self.lines):
-                if (
-                    self.field[r][c].state not in [DotState.WHITE, DotState.RED]
-                    and (r, c) not in visit
-                ):
+                if self.field[r][c].state == DotState.BLUE and (r, c) not in visit:
                     temp = dfs(r, c, DotState.RED)
                     if temp == 1:
                         sorted_borders = closest_neighbor_sort(borders)
                         for dot in captured_dots:
-                            dot.captured = True
-                            dot.state = DotState.EXBLUE
-                        red_captured_territory[tuple(captured_dots)] = list(sorted_borders)
+                            if dot.state == DotState.BLUE:
+                                dot.state = DotState.EXBLUE
+                        red_captured_territory[tuple(captured_dots)] = list(
+                            sorted_borders
+                        )
                         # red_captured_territory.append(list(sorted_borders))
                     captured_dots.clear()
                     borders.clear()
 
-                if (
-                    self.field[r][c].state not in [DotState.WHITE, DotState.BLUE]
-                    and (r, c) not in visit
-                ):
+                if self.field[r][c].state == DotState.RED and (r, c) not in visit:
                     temp = dfs(r, c, DotState.BLUE)
                     if temp == 1:
                         sorted_borders = closest_neighbor_sort(borders)
                         for dot in captured_dots:
-                            dot.captured = True
-                            dot.state = DotState.EXRED
-                        blue_captured_territory[tuple(captured_dots)] = list(sorted_borders)
+                            if dot.state == DotState.RED:
+                                dot.state = DotState.EXRED
+                        blue_captured_territory[tuple(captured_dots)] = list(
+                            sorted_borders
+                        )
                         # blue_captured_territory.append(list(sorted_borders))
                     captured_dots.clear()
                     borders.clear()
         return red_captured_territory, blue_captured_territory
+
+    def get_enemy_territory_by_color(self, color):
+        if color == DotState.BLUE:
+            return self.red_captured_territory
+        elif color == DotState.RED:
+            return self.blue_captured_territory
+        else:
+            raise Exception("Некорретный аргумент").with_traceback()
 
 
 def distance(point1, point2):
@@ -202,8 +226,28 @@ def closest_neighbor_sort(coords):
 def get_opposite_color(color):
     if color == DotState.BLUE:
         return DotState.RED
-    else:
+    elif color == DotState.RED:
         return DotState.BLUE
+    else:
+        raise Exception("Некорретный аргумент").with_traceback()
+
+
+def get_ex_color(color):
+    if color == DotState.BLUE:
+        return DotState.EXBLUE
+    elif color == DotState.RED:
+        return DotState.EXRED
+    else:
+        raise Exception("Некорретный аргумент").with_traceback()
+
+
+def get_captured_dot_color(border_color):
+    if border_color in [DotState.BLUE, DotState.EXBLUE]:
+        return DotState.EXRED
+    elif border_color in [DotState.RED, DotState.EXRED]:
+        return DotState.EXBLUE
+    else:
+        raise Exception("Некорретный аргумент").with_traceback()
 
 
 if __name__ == "__main__":
