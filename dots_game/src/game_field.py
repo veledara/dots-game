@@ -1,6 +1,6 @@
 from math import sqrt
 import pygame
-from constants import LIGHTGRAY, HEIGHT, WHITE, WIDTH, DotState
+from constants import LIGHTGRAY, GAME_WIDTH, GAME_HEIGHT, DotState, WHITE
 from dot import Dot
 
 
@@ -8,7 +8,7 @@ class GameField:
     def __init__(self, dots_amount=16) -> None:
         self.dots_amount = dots_amount
         self.lines = int(sqrt(dots_amount))
-        self.distance_between_dots = WIDTH / (self.lines + 1)
+        self.distance_between_dots = GAME_WIDTH / (self.lines + 1)
         self.field = self.fill_field()
         self.red_captured_territory = {}
         self.blue_captured_territory = {}
@@ -24,49 +24,41 @@ class GameField:
                 field[i][j] = Dot(pos=(i, j), coords=dot_coords)
         return field
 
-    def draw_field(self, win):
-        win.fill(WHITE)
+    def draw_field(self, surface):
+        surface.fill(WHITE)
         for i in range(1, self.lines + 1):
             pygame.draw.line(
-                surface=win,
+                surface=surface,
                 color=LIGHTGRAY,
                 start_pos=((self.distance_between_dots * (i)), 0),
-                end_pos=((self.distance_between_dots * (i)), HEIGHT),
+                end_pos=((self.distance_between_dots * (i)), GAME_HEIGHT),
                 width=3,
             )
             pygame.draw.line(
-                surface=win,
+                surface=surface,
                 color=LIGHTGRAY,
                 start_pos=(0, (self.distance_between_dots * (i))),
-                end_pos=(WIDTH, (self.distance_between_dots * (i))),
+                end_pos=(GAME_WIDTH, (self.distance_between_dots * (i))),
                 width=3,
             )
         for i in range(1, self.lines + 1):
             for j in range(1, self.lines + 1):
                 dot = self.field[i - 1][j - 1]
-                dot.draw(win)
+                dot.draw(surface)
 
-        self.draw_borders(
-            win, captured_territory=self.red_captured_territory
-        )
-        self.draw_borders(
-            win, captured_territory=self.blue_captured_territory
-        )
+        self.draw_borders(surface, captured_territory=self.red_captured_territory)
+        self.draw_borders(surface, captured_territory=self.blue_captured_territory)
 
-    def draw_borders(self, win, captured_territory):
+    def draw_borders(self, surface, captured_territory):
         for borders in captured_territory.values():
-            border_color = self.field[borders[0][0]][borders[0][1]].color
+            border_color = borders[0].color
             for i in range(len(borders)):
                 pygame.draw.line(
-                    surface=win,
+                    surface=surface,
                     color=border_color,
-                    start_pos=(self.field[borders[i][0]][borders[i][1]].coords),
-                    end_pos=(
-                        self.field[borders[(i + 1) % len(borders)][0]][
-                            borders[(i + 1) % len(borders)][1]
-                        ].coords
-                    ),
-                    width=4,
+                    start_pos=(borders[i].coords),
+                    end_pos=(borders[(i + 1) % len(borders)].coords),
+                    width=5,
                 )
 
     def check_for_dot_hit(self, pos, turn) -> bool:
@@ -159,12 +151,13 @@ class GameField:
                     temp = dfs(r, c, DotState.RED)
                     if temp == 1:
                         sorted_borders = closest_neighbor_sort(borders)
+                        border_dots = [
+                            self.field[coord[0]][coord[1]] for coord in sorted_borders
+                        ]
                         for dot in captured_dots:
                             if dot.state == DotState.BLUE:
                                 dot.state = DotState.EXBLUE
-                        red_captured_territory[tuple(captured_dots)] = list(
-                            sorted_borders
-                        )
+                        red_captured_territory[tuple(captured_dots)] = list(border_dots)
                         # red_captured_territory.append(list(sorted_borders))
                     captured_dots.clear()
                     borders.clear()
@@ -173,11 +166,14 @@ class GameField:
                     temp = dfs(r, c, DotState.BLUE)
                     if temp == 1:
                         sorted_borders = closest_neighbor_sort(borders)
+                        border_dots = [
+                            self.field[coord[0]][coord[1]] for coord in sorted_borders
+                        ]
                         for dot in captured_dots:
                             if dot.state == DotState.RED:
                                 dot.state = DotState.EXRED
                         blue_captured_territory[tuple(captured_dots)] = list(
-                            sorted_borders
+                            border_dots
                         )
                         # blue_captured_territory.append(list(sorted_borders))
                     captured_dots.clear()
@@ -191,6 +187,24 @@ class GameField:
             return self.blue_captured_territory
         else:
             raise Exception("Некорретный аргумент").with_traceback()
+
+    def get_current_score(self):
+        blue_score: int = 0
+        red_score: int = 0
+        for territory in self.blue_captured_territory.items():
+            if territory[1][0] == DotState.EXBLUE:
+                continue
+            for dot in territory[0]:
+                if dot.state == DotState.EXRED:
+                    blue_score += 1
+
+        for territory in self.red_captured_territory.items():
+            if territory[1][0] == DotState.EXRED:
+                continue
+            for dot in territory[0]:
+                if dot.state == DotState.EXBLUE:
+                    red_score += 1
+        return (blue_score, red_score)
 
 
 def distance(point1, point2):

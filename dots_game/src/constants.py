@@ -1,6 +1,6 @@
+from tkinter.font import Font
 import pygame
 from enum import Enum
-
 
 class DotState(Enum):
     WHITE = (255, 255, 255)
@@ -11,9 +11,15 @@ class DotState(Enum):
 
 
 FPS = 60
-WIDTH, HEIGHT = 600, 600
-DOTS = 144
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 900
+GAME_WIDTH, GAME_HEIGHT = 800, 800
+DOTS = 256
 SMOOTHNESS_OF_COLORING = 8
+
+pygame.init()
+FONT = pygame.font.Font(r"dots_game\src\fonts\pixel_font.ttf", 64)
 
 LIGHTGRAY = (211, 211, 211)
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
