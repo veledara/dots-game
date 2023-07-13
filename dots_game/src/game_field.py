@@ -99,13 +99,7 @@ class GameField:
                 and self.field[r][c] not in captured_dots
             ):
                 white_captured.append(self.field[r][c])
-            if (
-                self.field[r][c].state == color
-                or (
-                    self.field[r][c].state == get_opposite_color(color)
-                    and (r, c) in visit
-                )
-            ) or (r, c) in dfs_for_white_visit:
+            if self.field[r][c].state == color or (r, c) in dfs_for_white_visit:
                 return 1
             dfs_for_white_visit.add((r, c))
             return min(
