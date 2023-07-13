@@ -186,14 +186,14 @@ class GameField:
         blue_score: int = 0
         red_score: int = 0
         for territory in self.blue_captured_territory.items():
-            if territory[1][0] == DotState.EXBLUE:
+            if territory[1][0].state == DotState.EXBLUE:
                 continue
             for dot in territory[0]:
                 if dot.state == DotState.EXRED:
                     blue_score += 1
 
         for territory in self.red_captured_territory.items():
-            if territory[1][0] == DotState.EXRED:
+            if territory[1][0].state == DotState.EXRED:
                 continue
             for dot in territory[0]:
                 if dot.state == DotState.EXBLUE:
