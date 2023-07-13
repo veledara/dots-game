@@ -15,17 +15,17 @@ class Game:
     def __init__(self, dots_amount) -> None:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.game_field_surface = pygame.Surface([GAME_WIDTH, GAME_HEIGHT])
-        self.game_field = GameField(dots_amount)
+        self.game_field = GameField(self.game_field_surface, dots_amount)
         self.game_interface_surface = pygame.Surface(
             [SCREEN_WIDTH, SCREEN_HEIGHT - GAME_HEIGHT]
         )
-        self.game_interface = GameInterface()
+        self.game_interface = GameInterface(self.game_interface_surface)
         self.score = (0, 0)
         self.turn = DotState.BLUE
 
     def update(self):
-        self.game_field.draw_field(self.game_field_surface)
-        self.game_interface.draw_interface(self.game_interface_surface, self.score)
+        self.game_field.draw_field()
+        self.game_interface.draw_interface(self.score, self.turn)
         pygame.display.update()
 
     def move(self):

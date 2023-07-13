@@ -5,7 +5,8 @@ from dot import Dot
 
 
 class GameField:
-    def __init__(self, dots_amount=16) -> None:
+    def __init__(self, surface, dots_amount=16) -> None:
+        self.game_field_surface = surface
         self.dots_amount = dots_amount
         self.lines = int(sqrt(dots_amount))
         self.distance_between_dots = GAME_WIDTH / (self.lines + 1)
@@ -24,18 +25,18 @@ class GameField:
                 field[i][j] = Dot(pos=(i, j), coords=dot_coords)
         return field
 
-    def draw_field(self, surface):
-        surface.fill(WHITE)
+    def draw_field(self):
+        self.game_field_surface.fill(WHITE)
         for i in range(1, self.lines + 1):
             pygame.draw.line(
-                surface=surface,
+                surface=self.game_field_surface,
                 color=LIGHTGRAY,
                 start_pos=((self.distance_between_dots * (i)), 0),
                 end_pos=((self.distance_between_dots * (i)), GAME_HEIGHT),
                 width=3,
             )
             pygame.draw.line(
-                surface=surface,
+                surface=self.game_field_surface,
                 color=LIGHTGRAY,
                 start_pos=(0, (self.distance_between_dots * (i))),
                 end_pos=(GAME_WIDTH, (self.distance_between_dots * (i))),
@@ -44,17 +45,17 @@ class GameField:
         for i in range(1, self.lines + 1):
             for j in range(1, self.lines + 1):
                 dot = self.field[i - 1][j - 1]
-                dot.draw(surface)
+                dot.draw(self.game_field_surface)
 
-        self.draw_borders(surface, captured_territory=self.red_captured_territory)
-        self.draw_borders(surface, captured_territory=self.blue_captured_territory)
+        self.draw_borders(captured_territory=self.red_captured_territory)
+        self.draw_borders(captured_territory=self.blue_captured_territory)
 
-    def draw_borders(self, surface, captured_territory):
+    def draw_borders(self, captured_territory):
         for borders in captured_territory.values():
             border_color = borders[0].color
             for i in range(len(borders)):
                 pygame.draw.line(
-                    surface=surface,
+                    surface=self.game_field_surface,
                     color=border_color,
                     start_pos=(borders[i].coords),
                     end_pos=(borders[(i + 1) % len(borders)].coords),

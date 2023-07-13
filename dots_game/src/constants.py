@@ -11,13 +11,14 @@ class DotState(Enum):
 
 
 FPS = 60
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 900
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 875
 GAME_WIDTH, GAME_HEIGHT = 800, 800
 DOTS = 256
 SMOOTHNESS_OF_COLORING = 8
 
 pygame.init()
-FONT = pygame.font.Font(r"dots_game\src\fonts\pixel_font.ttf", 64)
+SCORE_FONT = pygame.font.Font(r"dots_game\src\fonts\pixel_font.ttf", 64)
+TEXT_FONT = pygame.font.Font(r"dots_game\src\fonts\pixel_font.ttf", 24)
 
 LIGHTGRAY = (211, 211, 211)
 WHITE = (255, 255, 255)
