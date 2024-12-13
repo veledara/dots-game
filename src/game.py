@@ -1,6 +1,6 @@
-from game_field import GameField
-from game_interface import GameInterface
-from constants import (
+from src.game_field import GameField
+from src.game_interface import GameInterface
+from src.constants import (
     DotState,
     SCREEN_WIDTH,
     SCREEN_HEIGHT,

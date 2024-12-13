@@ -1,5 +1,5 @@
-from constants import DOTS
-from game import Game
+from src.constants import DOTS
+from src.game import Game
 
 
 if __name__ == "__main__":

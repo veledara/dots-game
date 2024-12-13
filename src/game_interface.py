@@ -1,5 +1,5 @@
 import pygame
-from constants import (
+from src.constants import (
     DotState,
     WHITE,
     BLACK,

@@ -17,8 +17,8 @@ DOTS = 256
 SMOOTHNESS_OF_COLORING = 8
 
 pygame.init()
-SCORE_FONT = pygame.font.Font(r"dots_game\src\fonts\pixel_font.ttf", 64)
-TEXT_FONT = pygame.font.Font(r"dots_game\src\fonts\pixel_font.ttf", 24)
+SCORE_FONT = pygame.font.Font(r"src\fonts\pixel_font.ttf", 64)
+TEXT_FONT = pygame.font.Font(r"src\fonts\pixel_font.ttf", 24)
 
 LIGHTGRAY = (211, 211, 211)
 WHITE = (255, 255, 255)

@@ -1,7 +1,7 @@
 from math import sqrt
 import pygame
-from constants import LIGHTGRAY, GAME_WIDTH, GAME_HEIGHT, DotState, WHITE
-from dot import Dot
+from src.constants import LIGHTGRAY, GAME_WIDTH, GAME_HEIGHT, DotState, WHITE
+from src.dot import Dot
 
 
 class GameField:
